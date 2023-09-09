@@ -50,9 +50,22 @@ function updateTaskList() {
         `;
     }
     getList.innerHTML = html;
+
     taskCounter.textContent = `${userArray.length}`;
 
     // Agrega un manejador de eventos para los botones de borrar
+
+    function deleteTask(id) {
+        const index = userArray.findIndex((ele) => ele.id == id);
+        if (index !== -1) {
+            userArray.splice(index, 1);
+            updateTaskList();
+            // Actualiza el contador de tareas completadas después de eliminar una tarea
+            const completedTasks = userArray.filter((task) => task.complete);
+            taskDone.textContent = completedTasks.length;
+        }
+    }
+    
     const deleteButtons = document.querySelectorAll('.delete-button');
     deleteButtons.forEach((button) => {
         button.addEventListener('click', (event) => {
@@ -62,7 +75,6 @@ function updateTaskList() {
     });
 }
 
-
 getList.addEventListener('change', (event) => {
     if (event.target.matches('input[type="checkbox"]')) {
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -70,13 +82,5 @@ getList.addEventListener('change', (event) => {
         taskDone.textContent = completedTasks.length;
     }
 });
-
-function deleteTask(id) {
-    const index = userArray.findIndex((ele) => ele.id == id);
-    if (index !== -1) {
-        userArray.splice(index, 1);
-        updateTaskList(); 
-    }
-}
 
 updateTaskList();
