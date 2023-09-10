@@ -1,10 +1,10 @@
-let getUserInput = document.querySelector('#user-input');
-const getAddButton = document.querySelector('#button-add');
-const getList = document.querySelector('#task-list');
-const taskCounter = document.querySelector('#total-task');
-const taskDone = document.querySelector('#done-task');
+const inputField = document.querySelector('#user-input');
+const addButton = document.querySelector('#button-add');
+const taskList = document.querySelector('#task-list');
+const totalTaskCounter = document.querySelector('#total-task');
+const doneTaskCounter = document.querySelector('#done-task');
 
-let userArray = [
+let taskArray = [
     {id:'Task-01',
      task: 'Comprar tomates',   
      complete:false
@@ -19,26 +19,34 @@ let userArray = [
     },
 ];
 
-getAddButton.addEventListener('click', () =>{
+addButton.addEventListener('click', () =>{
     // Agregamos la nueva tarea al arreglo
-    const newtask = getUserInput.value;
+    const newtask = inputField.value;
     const timeStamp = Date.now();
     const lastTwoDigits = String(timeStamp).slice(-2);
 
-    userArray.push( { id:lastTwoDigits, task: newtask, complete:false} )
-    getUserInput.value = '';
+    taskArray.push( { id:lastTwoDigits, task: newtask, complete:false} )
+    inputField.value = '';
 
     updateTaskList();
 });
 
 function updateTaskList() {
     let html = '';
-    for (let i of userArray) {
+    let completedTasksCount = 0; // Inicializa el contador de tareas completadas
+
+    for (let i of taskArray) {
+        const isCompletedClass = i.complete ? 'completed' : '';
+
+        if (i.complete) {
+            completedTasksCount++; // Incrementa el contador si la tarea está completa
+        }
+
         html += `
-        <tr>
+        <tr class="${isCompletedClass}">
             <td>${i.id}</td>
             <td>${i.task}</td>
-            <td><input type="checkbox" id="check-box" style="cursor:pointer"></td>
+            <td><input type="checkbox" id="check-box" style="cursor:pointer" ${i.complete ? 'checked' : ''}></td>
             <td>
                 <button data-id="${i.id}" class="delete-button"
                  style="background: none;
@@ -49,20 +57,21 @@ function updateTaskList() {
         </tr>
         `;
     }
-    getList.innerHTML = html;
 
-    taskCounter.textContent = `${userArray.length}`;
+    taskList.innerHTML = html;
+    totalTaskCounter.textContent = `${taskArray.length}`;
+    doneTaskCounter.textContent = `${completedTasksCount}`;
 
     // Agrega un manejador de eventos para los botones de borrar
 
     function deleteTask(id) {
-        const index = userArray.findIndex((ele) => ele.id == id);
+        const index = taskArray.findIndex((ele) => ele.id == id);
         if (index !== -1) {
-            userArray.splice(index, 1);
+            taskArray.splice(index, 1);
             updateTaskList();
             // Actualiza el contador de tareas completadas después de eliminar una tarea
-            const completedTasks = userArray.filter((task) => task.complete);
-            taskDone.textContent = completedTasks.length;
+            const completedTasks = taskArray.filter((task) => task.complete);
+            doneTaskCounter.textContent = completedTasks.length;
         }
     }
     
@@ -75,11 +84,15 @@ function updateTaskList() {
     });
 }
 
-getList.addEventListener('change', (event) => {
+taskList.addEventListener('change', (event) => {
     if (event.target.matches('input[type="checkbox"]')) {
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        const completedTasks = Array.from(checkboxes).filter((checkbox) => checkbox.checked);
-        taskDone.textContent = completedTasks.length;
+        const taskId = event.target.closest('tr').querySelector('td:first-child').textContent;
+        const task = taskArray.find((t) => t.id === taskId);
+        
+        if (task) {
+            task.complete = event.target.checked;
+            updateTaskList();
+        }
     }
 });
 
