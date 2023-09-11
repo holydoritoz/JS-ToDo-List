@@ -4,28 +4,15 @@ const taskList = document.querySelector('#task-list');
 const totalTaskCounter = document.querySelector('#total-task');
 const doneTaskCounter = document.querySelector('#done-task');
 
-let taskArray = [
-    {id:'Task-01',
-     task: 'Comprar tomates',   
-     complete:false
-    },
-    {id:'Task-02 ',
-     task: 'Llamar a mi mama urgente!',   
-     complete:false
-    },
-    {id:'Task-03',
-     task: 'Comprar las medicinas para la operación',
-     complete:false
-    },
-];
+let taskArray = [];
+let taskIdCounter = 1;
+
 
 addButton.addEventListener('click', () =>{
     // Agregamos la nueva tarea al arreglo
     const newtask = inputField.value;
-    const timeStamp = Date.now();
-    const lastTwoDigits = String(timeStamp).slice(-2);
 
-    taskArray.push( { id:lastTwoDigits, task: newtask, complete:false} )
+    taskArray.push( { id:taskIdCounter++, task: newtask, complete:false} )
     inputField.value = '';
 
     updateTaskList();
@@ -87,7 +74,7 @@ function updateTaskList() {
 taskList.addEventListener('change', (event) => {
     if (event.target.matches('input[type="checkbox"]')) {
         const taskId = event.target.closest('tr').querySelector('td:first-child').textContent;
-        const task = taskArray.find((t) => t.id === taskId);
+        const task = taskArray.find((t) => t.id === parseInt(taskId, 10));
         
         if (task) {
             task.complete = event.target.checked;
